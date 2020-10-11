@@ -31,7 +31,7 @@ vektor_in(PG_FUNCTION_ARGS) {
     int32 a=PG_GETARG_INT32(2);
   
 
-//ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("second argument:\"%d\"",PG_GETARG_INT32(2))));
+ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("second argument:\"%d\"",PG_GETARG_INT32(2))));
 
 
 
@@ -86,12 +86,12 @@ if(n==1){
 		
 	}
 
-typmod	= tl[0];
+typmod	= tl[0]+ VARHDRSZ;
 }
 else{
 	ereport(ERROR,(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
             errmsg("You can define only Vector dimension ")));
-	typmod=-1;
+	typmod=0;
 }
 	
 PG_RETURN_INT32(typmod);
@@ -105,8 +105,8 @@ Datum vektor_out_modifier(PG_FUNCTION_ARGS){
 int32 typmod=PG_GETARG_INT32(0);
 char *res=(char*)palloc(32);
 
-if(typmod>=0)
-	snprintf(res,32,"(%d)",typmod);
+if(typmod>0)
+	snprintf(res,32,"(%d)",typmod - VARHDRSZ);
 
 else
 	*res='\0';
@@ -119,11 +119,5 @@ PG_FUNCTION_INFO_V1(mvektor);
 
 Datum mvektor(PG_FUNCTION_ARGS){
 
-Vektor* source=(Vektor*)PG_GETARG_DATUM(0);
-int32 typmod=PG_GETARG_INT32(1);
-
-if (typmod < 0)
-    PG_RETURN_POINTER(source);
-
-PG_RETURN_POINTER(NULL);
+return DirectFunctionCall3(vektor_in, DirectFunctionCall(vektor_out,PG_GETARG_DATUM(0)),0,PG_GETARG_INT32(1));
 }
