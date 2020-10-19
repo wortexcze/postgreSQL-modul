@@ -83,18 +83,19 @@ void removeSpaces(char* str)
     str[count] = '\0';
 }
 
-void fromdoubletostring(double* a, char* b,int size) {
-    b[0]='(';
+void fromdoubletostring(const double* a, char* b,const int size) {
+  strcat(b,"(");
     for (int i = 0; i < size; i++) {
 	char but[10];
         double pom = a[i];
 	if((i+1)==size)
-		sprintf(but,"%0.2f)",pom);
+		sprintf(but,"%.2f)",pom);
 	else
-        	sprintf(but,"%0.2f,",pom);
+        	sprintf(but,"%.2f,",pom);
 
         strcat(b, but);
     }
+      
 }
 
 
@@ -110,12 +111,12 @@ double get_double(const char* str)
 void fromstrdouble(char* a, double* b,int *del)
 {
     int len = strlen(a);
-    char buffer[65],pom=0;
+    char buffer[65];
     int start = 0, end = 0;
     (*del) = 0;
     for (int i = 1; i < len; i++) {  
         if (isdigit(a[i])|| a[i]=='.') {
-            pom = 1;
+           // pom = 1;
             if (start < 1) {
                 start = i;
             }
@@ -139,13 +140,14 @@ Datum vektor_in(PG_FUNCTION_ARGS) {
 #endif
 
     int32 a=PG_GETARG_INT32(2);
+    int len;
 
 removeSpaces(str);
 
 if(!parsersgtring(str))
 ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("error in syntax:\"%s\"",str)));
 
-    int len=coutnumber(str);
+    len=coutnumber(str);
     Vektor*   result = (Vektor*)palloc(VARHDRSZ+len*sizeof(double)+sizeof(int));
     SET_VARSIZE(result,VARHDRSZ+len*sizeof(double)+sizeof(int));
 
@@ -157,10 +159,12 @@ ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("error in syn
 
 Datum vektor_out(PG_FUNCTION_ARGS) {
     Vektor* complex = (Vektor*)PG_GETARG_POINTER(0);
-	char* m=(char*)palloc((complex->delka)+2+(complex->delka-1)+1);
+	char* m=(char*)palloc(100);
+	*m='\0';
 	//sprintf(m,"(%g,%g,%g,%g)",complex->data[0],complex->data[1],complex->data[2],complex->data[3]);
 	//sprintf(m,"(%d)",complex->delka);
 	fromdoubletostring(complex->data,m,complex->delka);
+	
 	PG_RETURN_CSTRING(m);
 }
 
@@ -211,7 +215,6 @@ Datum mvektor(PG_FUNCTION_ARGS){
 	Vektor    *source =(Vektor*) PG_GETARG_DATUM(0);
 	int32		typmod = PG_GETARG_INT32(1);
 	bool		isExplicit = PG_GETARG_BOOL(2);
-	int32		len,maxlen,count;
 
 
 	if (source->delka==typmod)

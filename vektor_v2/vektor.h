@@ -10,7 +10,7 @@ PG_MODULE_MAGIC;
 
 typedef struct {
 	int length;
-	double data[FLEXIBLE_ARRAY_MEMBER];
+	double data[1];
 	int delka;
 } Vektor;
 
@@ -20,7 +20,7 @@ int coutnumber(char *a);
 void removeSpaces(char* str);
 double get_double(const char* str);
 void fromstrdouble(char* a, double* b,int *del);
-void fromdoubletostring(double* a, char* b,int size);
+void fromdoubletostring(const double* a, char* b,const int size);
 
 PG_FUNCTION_INFO_V1(vektor_in);
 Datum vektor_in(PG_FUNCTION_ARGS); 
