@@ -1,0 +1,4 @@
+comment='Simple vektor extension'
+default_version='1.0'
+relocatable=true
+module_pathname='/home/jakub/NGT-master/build/ngtPostgres/vektor.so'
