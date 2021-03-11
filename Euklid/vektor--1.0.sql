@@ -37,7 +37,7 @@ typmod_out=vektor_out_modifier
 CREATE CAST(vektor AS vektor) WITH FUNCTION mvektor(vektor,int,bool) AS IMPLICIT;
 
 Create Function euklidlen(vektor,vektor)
-    RETURNS double
+    RETURNS float
     AS 'MODULE_PATHNAME','euklidlen'
     LANGUAGE C IMMUTABLE STRICT;
 
